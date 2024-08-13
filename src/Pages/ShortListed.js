@@ -1,10 +1,9 @@
 import React, {useState} from 'react';
 import { Row, Col, Pagination } from 'antd';
 import ProfileCard from '../Components/ProfileCard';
-import SearchFilter from '../Components/SearchFilter';
 import '../styles/explore.css'
 
-const Explore = () => {
+const ShortListed = () => {
     const profiles = [
         {
             "userId": "02b5d3f7-6f08-11ee-8bff-42010a400007",
@@ -217,9 +216,6 @@ const Explore = () => {
   
     return (
       <div className="explore-container">
-        <div className="search-bar">
-          <SearchFilter />
-        </div>
         <Row gutter={[24, 24]} justify="center">
           {profiles.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((profile, index) => (
             <Col key={index} xs={24} sm={24} lg={12} xl={12}>
@@ -238,4 +234,4 @@ const Explore = () => {
     );
   };
   
-  export default Explore;
+  export default ShortListed;

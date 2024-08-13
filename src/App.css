@@ -10,9 +10,11 @@
   }
   
   .main-content {
-    margin-left: 200px;
+    margin: 0px 50px;
     padding: 20px; 
     width: calc(100% - 200px); 
+    overflow-y: auto;
+    scroll-behavior: smooth;
   }
 
 *{
