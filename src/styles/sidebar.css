@@ -35,30 +35,38 @@
 }
 
 
-.sidebar li{
+.sidebar a {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    text-decoration: none;
+    color: black;
 }
 
-.sidebar li svg{
+.sidebar a svg{
     font-size: 20px;
 }
 
-.sidebar li:hover svg{
+.sidebar a:hover svg{
     transform: scale(1.1) !important;
-    color: #4f46e5;
 }
 
-.sidebar li span{
+.sidebar a span{
     margin-top: 10px;
     font-size: 10px;
 }
 
-.sidebar-bottom li{
+.sidebar-bottom a{
     background-color: rgb(243 244 246);
     padding: 0px 10px 10px 10px;
     border-radius: 9999px;
+}
+
+.active , .sidebar a:hover span:first-of-type{
+    color: #4f46e5;
+    background-color: rgb(238 242 255);
+    padding: 0.5rem;
+    border-radius: 0.75rem;
 }

@@ -3,38 +3,41 @@ import { ArrowsAltOutlined, SearchOutlined, FlagOutlined, CalendarOutlined } fro
 import logo from '../assets/icon.svg'
 import profile from '../assets/profile.png'
 import '../styles/sidebar.css'
+import {Link} from 'react-router-dom'
 
 
-export default function Sidebar() {
+export default function Sidebar({ path }) {
+    const isActive = (iconPath) => path === iconPath;
+
     return (
         <div className="sidebar">
             <div className="sidebar-top">
-                <a className="sidebar-logo" href="/">
+                <Link className="sidebar-logo" to="/">
                     <img src={logo} alt="logo" />
-                </a>
+                </Link>
                 <ul>
-                    <li>
-                        <SearchOutlined />
+                    <Link to="/">
+                        <SearchOutlined className={isActive('/') || isActive('/user') ? 'active' : ''} />
                         <span>Search</span>
-                    </li>    
-                    <li>
-                        <FlagOutlined />
+                    </Link>
+                    <Link to="/shortlisted">
+                        <FlagOutlined className={isActive('/shortlisted') ? 'active' : ''} />
                         <span>Shortlisted</span>
-                    </li>
-                    <li>
-                        <ArrowsAltOutlined style={{ transform: 'rotate(45deg)' }}/>
+                    </Link>
+                    <Link to="/compare">
+                        <ArrowsAltOutlined className={isActive('/compare') ? 'active' : ''} style={{ transform: 'rotate(45deg)' }} />
                         <span>Compare</span>
-                    </li>
+                    </Link>
                 </ul>
             </div>
             <ul className="sidebar-bottom">
-                <li>
+                <a>
                     <CalendarOutlined />
-                </li>
-                <a className="sidebar-profile" href="/">
-                    <img src={profile} alt="profile" />
                 </a>
+                <div className="sidebar-profile" to="/">
+                    <img src={profile} alt="profile" />
+                </div>
             </ul>
         </div>
-      );
+    );
 }
