@@ -1,0 +1,33 @@
+.profile-pic{
+    width: 100px;
+}
+.candidate-profile-card {
+    margin: 10px;
+}
+
+.candidate-name,
+.candidate-experience,
+.candidate-skills,
+.candidate-summary {
+    margin-bottom: 10px;
+}
+
+.comparison-container {
+    padding: 20px;
+}
+
+.comparison-row {
+    justify-content: center;
+}
+
+.comparison-column {
+    width: 100%;
+}
+
+.profile-comparison-card {
+    margin-bottom: 20px;
+}
+
+.comparison-table {
+    width: 100%;
+}

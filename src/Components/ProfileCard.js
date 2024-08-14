@@ -1,66 +1,137 @@
-import React from 'react';
-import { Card, Button } from 'antd';
-import profile1 from '../assets/profiles/1.jpg';
-import profile2 from '../assets/profiles/2.jpg';
-import profile3 from '../assets/profiles/3.jpg';
-import profile4 from '../assets/profiles/4.jpg';
-import profile5 from '../assets/profiles/5.jpg';
-import profile6 from '../assets/profiles/6.jpg';
-import profile7 from '../assets/profiles/7.jpg';
-import profile8 from '../assets/profiles/8.jpg';
-import profile9 from '../assets/profiles/9.jpg';
-import { ArrowRightOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+import { Card, Button, Tag, Flex, Badge, message } from 'antd';
+import { ArrowRightOutlined, FlagOutlined, FlagFilled, SmileOutlined, SmileFilled } from '@ant-design/icons';
 import '../styles/profileCard.css';
+import constants from '../utils/constants';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 
-const defaultImages = [profile1, profile2, profile3, profile4, profile5, profile6, profile7, profile8, profile9];
+const ProfileCard = ({ profile, handleUpdateShortlist = () => { } }) => {
+  const { userId, name, totalExperience, location, summary, skills, profilePic, fullTime, partTime, workAvailability, preferredRole } = profile;
+  const personalInfoLocation = JSON.parse(location);
+  const hashImageIndex = constants.getRandomHashIndex(userId, constants.defaultImages.length);
+  const hashSummaryIndex = constants.getRandomHashIndex(userId, constants.randomSummaries.length);
+  const selectedImage = constants.defaultImages[hashImageIndex]; // Select image based on hash
+  const selectedSummary = summary || constants.randomSummaries[hashSummaryIndex]; // Select image based on hash
+  const [isShortlisted, setIsShortlisted] = useState(false);
+  const [isCompared, setIsCompared] = useState(false); // New state for compare
+  const [messageApi, contextHolder] = message.useMessage();
+  const navigate = useNavigate();
+  const pageLocation = useLocation();
 
+  useEffect(() => {
+    const shortlistedUsers = JSON.parse(localStorage.getItem('shortlistedUsers')) || [];
+    setIsShortlisted(shortlistedUsers.includes(userId));
+    const comparedUsers = JSON.parse(localStorage.getItem('comparedUsers')) || []; // Assume localStorage for compared users
+    setIsCompared(comparedUsers.includes(userId));
+  }, [userId]);
 
-// Simple hash function to determine image index
-const getImageIndex = (userId) => {
-  let hash = 0;
-  for (let i = 0; i < userId.length; i++) {
-    hash = (hash + userId.charCodeAt(i)) % defaultImages.length;
-  }
-  return hash;
-};
+  const toggleShortlist = () => {
+    const shortlistedUsers = JSON.parse(localStorage.getItem('shortlistedUsers')) || [];
+    let updatedList;
+    if (isShortlisted) {
+      updatedList = shortlistedUsers.filter(id => id !== userId);
+      setIsShortlisted(false);
+      isCompared && toggleCompare();
+      localStorage.setItem('shortlistedUsers', JSON.stringify(updatedList));
+      handleUpdateShortlist(updatedList); 
+    } else {
+      updatedList = [...shortlistedUsers, userId];
+      setIsShortlisted(true);
+      localStorage.setItem('shortlistedUsers', JSON.stringify(updatedList));
+    }
+    window.dispatchEvent(new Event("storage"));
+  };
 
-const ProfileCard = ({ profile }) => {
-  const { userId, name, totalExperience, location, summary, skills, profilePic, commitment } = profile;
-  const imageIndex = getImageIndex(userId | "hqudhu");
-  const selectedImage = defaultImages[imageIndex]; // Select image based on hash
+  const compareError = () => {
+    messageApi.open({
+      type: 'error',
+      content: 'You can compare only 2 profiles at a time',
+    });
+  };
 
-  console.log( { userId, name, totalExperience, location, summary, skills, profilePic, commitment })
-  return (
+  const toggleCompare = () => {
+    const comparedUsers = JSON.parse(localStorage.getItem('comparedUsers')) || [];
+    let updatedList;
+    if(comparedUsers.length === 2 && !isCompared){
+      compareError();
+      return;
+    }
+    if (isCompared) {
+      updatedList = comparedUsers.filter(id => id !== userId);
+    } else {
+      updatedList = [...comparedUsers, userId];
+    }
+    localStorage.setItem('comparedUsers', JSON.stringify(updatedList));
+    window.dispatchEvent(new Event("storage"));
+    setIsCompared(!isCompared);
+    if(updatedList.length === 2){
+      navigate('/compare');
+    }
+  };
+
+  const card =
+  <Link to={`/user/${userId}`}>
+    {contextHolder}
     <Card className="profile-card">
-      <div>
-        <div>
-          <div>
-            <img src={profilePic || selectedImage} alt={`${name}'s profile`} className='profile-image'/>
-            <div className="card-title">{`${name} | Exp: ${totalExperience} | ${location}`}</div>
+      <div className="profile-card-content">
+        <div className="profile-card-header">
+          <div className="profile-card-image-container">
+            <img src={profilePic || selectedImage} alt={`${name}'s profile`} className='profile-image' />
+            <div className="profile-card-title">
+              <span>{preferredRole}</span>
+              <span className='profile-card-personal-info'>{`${name}  |  Exp: ${totalExperience} years  |  ${personalInfoLocation?.city}, ${personalInfoLocation?.country}`}</span>
+            </div>
           </div>
-          <Button type='primary' className='follow-button' icon={<ArrowRightOutlined />} iconPosition='end'>
-            View Profile
-          </Button>
+          <div className='profile-card-header-actions'>
+            {(pageLocation.pathname === '/shortlisted') ? (
+              isCompared ? <SmileFilled onClick={toggleCompare} /> : <SmileOutlined onClick={toggleCompare} />
+            ): null
+              
+            }
+            {isShortlisted ?
+              <FlagFilled onClick={toggleShortlist} /> :
+              <FlagOutlined onClick={toggleShortlist} />}
+            <Button type='primary' className='profile-card-view-button' icon={<ArrowRightOutlined />} iconPosition='end'>
+              View Profile
+            </Button>
+          </div>
+
         </div>
-        <div>
-          {summary}
+        <div className="profile-card-summary">
+          {selectedSummary}
         </div>
       </div>
 
-      <div>
-        <div className="expertise-list">
-            <span>Expertise in: </span>
-            <span>{skills}</span>
+      <div className="profile-card-details">
+        <div className="profile-card-expertise">
+          <span className="profile-card-label">Expert in </span>
+          <Flex className="profile-card-expertise-list">{
+            [...new Set(skills.split(','))].map((skill) => (
+              <span key={skill}><Tag color={constants.tagColors[constants.getRandomHashIndex(skill, constants.tagColors.length)]}>{skill}</Tag></span>
+            ))
+          }
+          </Flex>
         </div>
-        <div className="expertise-list">
-          <span>Commitment: </span>
-          <span>{commitment}</span>
+        <div className="profile-card-commitment">
+          <span className="profile-card-label">Commitment </span>
+          <Flex className="profile-card-commitment-type">
+            {
+              fullTime ? <Tag color="#f3f4f6">Full-time</Tag> : null
+            }
+            {
+              partTime ? <Tag color="#f3f4f6">Part-time</Tag> : null
+            }
+          </Flex>
         </div>
       </div>
-      
-      
     </Card>
-  );
+  </Link>
+
+  return workAvailability === "immediately" ? (
+    <Badge.Ribbon text={"Immediate Joiner"} placement='start' color='rgb(19 10 10 / 68%)'>
+      {card}
+    </Badge.Ribbon>
+  ) : card;
 };
 
 export default ProfileCard;

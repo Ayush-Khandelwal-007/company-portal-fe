@@ -1,13 +1,25 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { ArrowsAltOutlined, SearchOutlined, FlagOutlined, CalendarOutlined } from '@ant-design/icons';
 import logo from '../assets/icon.svg'
 import profile from '../assets/profile.png'
 import '../styles/sidebar.css'
-import {Link} from 'react-router-dom'
+import { useLocation, Link } from 'react-router-dom'
+import { Badge } from 'antd';
 
+export default function Sidebar() {
+    const location = useLocation();
+    const isActive = (pagePath) =>  location.pathname.includes(pagePath);
+    const [shortlistedUsers, setShortlistedUsers] = useState(JSON.parse(localStorage.getItem('shortlistedUsers')) || []);
 
-export default function Sidebar({ path }) {
-    const isActive = (iconPath) => path === iconPath;
+    useEffect(() => {
+        const handleStorageChange = () => {
+            setShortlistedUsers(JSON.parse(localStorage.getItem('shortlistedUsers')) || []);
+        }
+        window.addEventListener('storage',handleStorageChange);
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, []);
 
     return (
         <div className="sidebar">
@@ -17,13 +29,15 @@ export default function Sidebar({ path }) {
                 </Link>
                 <ul>
                     <Link to="/">
-                        <SearchOutlined className={isActive('/') || isActive('/user') ? 'active' : ''} />
+                        <SearchOutlined className={isActive('/') || isActive('/user/') ? 'active' : ''} />
                         <span>Search</span>
                     </Link>
-                    <Link to="/shortlisted">
-                        <FlagOutlined className={isActive('/shortlisted') ? 'active' : ''} />
-                        <span>Shortlisted</span>
-                    </Link>
+                    <Badge count={shortlistedUsers.length}>
+                        <Link to="/shortlisted">
+                            <FlagOutlined className={isActive('/shortlisted') ? 'active' : ''} />
+                            <span>Shortlisted</span>
+                        </Link>
+                    </Badge>
                     <Link to="/compare">
                         <ArrowsAltOutlined className={isActive('/compare') ? 'active' : ''} style={{ transform: 'rotate(45deg)' }} />
                         <span>Compare</span>

@@ -11,19 +11,6 @@
     width: 20px;
   }
 
-  .search-filter button:hover, .profile-card button:hover{
-    background-color:#746df5 !important;   
-  }
-
-  .search-filter input{
-    height: 50px;
-    width: 30%;
-    min-width: 400px;
-    border-radius: 2.5rem;
-    padding: 10px 30px;
-    border: none;
-  }
-
   .profile-card {
     border: 1px solid #d9d9d9; 
     transition: border-color 0.1s ease-in-out; 
@@ -33,11 +20,80 @@
   
   .profile-card:hover {
     border-color: #4f46e5; 
-    transform: scale(1.01);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, .1), 0 2px 4px -2px rgba(0, 0, 0, .1);
   }
 
   .profile-image{
     border-radius: 0.75rem;
     height: 46px;
+  }
+
+  .profile-card div{
+    display: flex;
+  }
+
+  .profile-card .ant-card-body{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0px;
+    padding: 20px;
+  }
+
+  .profile-card-content{
+    flex-direction: column;
+    gap: 10px;
+    color: rgb(75 85 99/1);
+    font-family: ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
+  }
+
+  .profile-card-header{
+    justify-content: space-between;
+  }
+
+  .profile-card-image-container{
+    align-items: center;
+    gap: 10px;
+    color: rgb(17 24 39);
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  .profile-card-title{
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .profile-card-personal-info{
+    font-size: 0.8rem;
+  }
+
+  .profile-card-details{
+    justify-content: space-between;
+  }
+
+  .profile-card-header-actions>span{
+    margin-right: 10px;
+    color: #4f46e5;
+    font-size: 1.2rem;
+  }
+
+  .profile-card-expertise, .profile-card-commitment{
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .profile-card-label{
+    font-weight: 500;
+    font-size: .875rem;
+    line-height: 1.25rem;
+    font-family: ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
+  }
+
+  .profile-card-summary{
+    height: 80px;
+  }
+
+  .profile-card-commitment-type > span{
+    color: black !important;
   }
