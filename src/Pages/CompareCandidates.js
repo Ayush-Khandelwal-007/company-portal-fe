@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Table, Image, Empty, Spin } from 'antd';
+import { Row, Col, Card, Table, Image, Empty, Spin, Tag, Flex } from 'antd';
 import constants from '../utils/constants';
 import '../styles/compareCandidates.css';
 import { fetchComparisonData } from '../utils/functions';
@@ -57,6 +57,23 @@ const CompareCandidates = () => {
                 attribute: 'Part Time Salary',
                 user1: `${constants.currency_symbols[comparisonData.partTimeSalaryCurrency.user1]} ${comparisonData.partTimeSalary.user1.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} `,
                 user2: `${constants.currency_symbols[comparisonData.partTimeSalaryCurrency.user2]} ${comparisonData.partTimeSalary.user2.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} `
+            };
+        } else if(key === 'skills') {
+            return {
+                key: key,
+                attribute: 'Location',
+                user1: <Flex className="profile-card-expertise-list">{
+                    [...new Set(comparisonData.skills.user1.split(','))].map((skill) => (
+                      <span key={skill}><Tag color={constants.tagColors[constants.getRandomHashIndex(skill, constants.tagColors.length)]}>{skill}</Tag></span>
+                    ))
+                  }
+                  </Flex>,
+                user2: <Flex className="profile-card-expertise-list">{
+                    [...new Set(comparisonData.skills.user2.split(','))].map((skill) => (
+                      <span key={skill}><Tag color={constants.tagColors[constants.getRandomHashIndex(skill, constants.tagColors.length)]}>{skill}</Tag></span>
+                    ))
+                  }
+                  </Flex>
             };
         } else {
             return {
