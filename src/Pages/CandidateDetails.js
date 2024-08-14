@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Card, Image, Button, Flex, Tag, Row, Col } from 'antd';
+import { Card, Image, Button, Flex, Tag, Row, Col, Spin } from 'antd';
 import { ShareAltOutlined, ArrowRightOutlined, FlagOutlined, FlagFilled, MailOutlined, VideoCameraOutlined, SolutionOutlined, BookOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import '../styles/candidateDetails.css';
 import constants from '../utils/constants';
 import OrgImage from '../assets/org.png';
 import SchoolImage from '../assets/school.png';
 import ResumeSection from '../Components/ResumeSection';
+import { fetchCandidateDetails } from '../utils/functions';
 
 const CandidateDetails = () => {
     const { id } = useParams();
     const [candidate, setCandidate] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);  // Add loading state
     const personalInfoLocation = candidate?.personalInfoLocation
     const hashImageIndex = constants.getRandomHashIndex(id, constants.defaultImages.length);
     const hashSummaryIndex = constants.getRandomHashIndex(id, constants.randomSummaries.length);
@@ -39,17 +41,24 @@ const CandidateDetails = () => {
       };
 
     useEffect(() => {
-        fetch(`http://localhost:8090/user/${id}`)
-            .then(response => response.json())
+        setIsLoading(true);  // Set loading to true when starting to fetch
+        fetchCandidateDetails(id)
             .then(data => {
-                data.personalInfoLocation = JSON.parse(data.personalInfoLocation || "{}");
                 setCandidate(data);
+                setIsLoading(false);  // Set loading to false after fetching
             })
-            .catch(error => console.error('Failed to fetch candidate details:', error));
+            .catch(error => {
+                console.error('Failed to fetch candidate details:', error);
+                setIsLoading(false);  // Set loading to false on error
+            });
     }, [id]);
 
+    if (isLoading) {
+        return <Spin size="large" fullscreen/>;  // Display loading indicator
+    }
+
     if (!candidate) {
-        return <div>Loading...</div>;
+        return <div>No candidate data available.</div>;
     }
 
     return (

@@ -1,34 +1,32 @@
-const API_BASE_URL = 'http://localhost:8090';
+const API_BASE_URL = 'https://company-portal-be.onrender.com';
 
-export const fetchProfilesByUserIds = (userIds) => {
-    return fetch(`${API_BASE_URL}/users-by-ids`, {
-        method: 'POST',
+const customFetch = async (url, options = {}) => {
+    const defaultOptions = {
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userIds })
-    }).then(response => response.json());
-};
+    };
 
-export const fetchComparisonData = (userIds) => {
-    return fetch(`${API_BASE_URL}/compare-users`, {
-        method: 'POST',
+    const finalOptions = {
+        ...defaultOptions,
+        ...options,
         headers: {
-            'Content-Type': 'application/json'
+            ...defaultOptions.headers,
+            ...options.headers,
         },
-        body: JSON.stringify({ userIds })
-    }).then(response => response.json());
-};
+    };
 
-export const fetchUsersWithFilters = (currentPage, pageSize, filters) => {
-    const queryParams = new URLSearchParams({
-        page: currentPage,
-        pageSize: pageSize,
-    });
-    return fetch(`${API_BASE_URL}/users?${queryParams}&filters=${filters.join(',')}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
+    try {
+        const response = await fetch(`${API_BASE_URL}${url}`, finalOptions);
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.message || 'Something went wrong');
         }
-    }).then(response => response.json());
+        return data;
+    } catch (error) {
+        console.error('Fetch Error:', error);
+        throw error;
+    }
 };
+
+export default customFetch;

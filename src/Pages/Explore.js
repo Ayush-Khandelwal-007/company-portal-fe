@@ -1,38 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Pagination } from 'antd';
+import { Row, Col, Pagination, Spin } from 'antd';
 import ProfileCard from '../Components/ProfileCard';
 import SearchFilter from '../Components/SearchFilter';
-import '../styles/explore.css'
-import { fetchUsersWithFilters } from '../utils/api';
+import '../styles/explore.css';
+import { fetchUsersWithFilters } from '../utils/functions';
 
 const Explore = () => {
-    const [profiles, setProfiles] = useState([]);
-    const [totalProfiles, setTotalProfiles] = useState(0);
+    const [userProfiles, setUserProfiles] = useState([]);
+    const [totalUserProfiles, setTotalUserProfiles] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
+    const [isLoading, setIsLoading] = useState(false);
     const pageSize = 8;
 
     useEffect(() => {
-        const fetchProfiles = () => {
-            const filtersList = localStorage.getItem('filtersList');
-            const filters = JSON.parse(filtersList || "[]");
+        const loadProfiles = () => {
+            setIsLoading(true);
+            const filters = JSON.parse(localStorage.getItem('filtersList') || "[]");
             fetchUsersWithFilters(currentPage, pageSize, filters)
                 .then(data => {
-                    setProfiles(data.results);
-                    setTotalProfiles(data.totalPages);
+                    setUserProfiles(data.results);
+                    setTotalUserProfiles(data.totalPages);
+                    setIsLoading(false);
                 })
-                .catch(error => console.error('Error fetching profiles:', error));
-        }
-
-        window.addEventListener('filter-storage', fetchProfiles);
-        fetchProfiles();
-        return () => {
-            window.removeEventListener('filter-storage', fetchProfiles);
+                .catch(error => {
+                    console.error('Error fetching profiles:', error);
+                    setIsLoading(false);
+                });
         };
+
+        window.addEventListener('filter-storage', loadProfiles);
+        loadProfiles();
+        return () => window.removeEventListener('filter-storage', loadProfiles);
     }, [currentPage]);
 
     const handleChange = page => {
         setCurrentPage(page);
     };
+
+    if (isLoading) {
+        return <Spin size="large" fullscreen/>;
+    }
 
     return (
         <div className="explore-container">
@@ -40,7 +47,7 @@ const Explore = () => {
                 <SearchFilter />
             </div>
             <Row gutter={[24, 24]} justify="center">
-                {profiles?.map((profile, index) => (
+                {userProfiles.map((profile, index) => (
                     <Col key={profile.userId} xs={24} sm={24} lg={12} xl={12}>
                         <ProfileCard profile={profile} />
                     </Col>
@@ -49,7 +56,7 @@ const Explore = () => {
             <Pagination
                 current={currentPage}
                 onChange={handleChange}
-                total={totalProfiles * pageSize}
+                total={totalUserProfiles * pageSize}
                 pageSize={pageSize}
                 showSizeChanger={false}
             />

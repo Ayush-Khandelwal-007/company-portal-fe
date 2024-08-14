@@ -10,7 +10,7 @@ const ResumeSection = ({
         <div className="resume-section-container">
             <h2 className="resume-section-heading">{heading}</h2>
             {subsections.map((subsection, index) => (
-                <div key={subsection.subtitle+index} className="resume-subsection">
+                <div key={`${subsection.subtitle}-${index}`} className="resume-subsection">
                     <img className="resume-subsection-image" src={subsectionImage} alt={subsection.title} />
                     <div className="resume-subsection-details">
                         <div className="resume-subsection-header">

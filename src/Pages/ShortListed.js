@@ -1,43 +1,55 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Row, Col, Pagination, Empty } from 'antd';
+import { Row, Col, Pagination, Empty, Spin } from 'antd';
 import ProfileCard from '../Components/ProfileCard';
 import '../styles/explore.css';
-import { fetchProfilesByUserIds } from '../utils/api';
+import { fetchProfilesByUserIds } from '../utils/functions';
 
 const ShortListed = () => {
     const [profiles, setProfiles] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 8; // Number of cards per page
+    const pageSize = 8;
+    const [isLoading, setIsLoading] = useState(false);
 
     const fetchProfiles = useCallback(() => {
+        setIsLoading(true);
         const shortlistedUsers = JSON.parse(localStorage.getItem('shortlistedUsers')) || [];
         if (shortlistedUsers.length === 0) {
             setProfiles([]);
-            setCurrentPage(1); // Reset to first page if no profiles are shortlisted
+            setCurrentPage(1); 
+            setIsLoading(false); 
             return;
         }
         fetchProfilesByUserIds(shortlistedUsers)
             .then(data => {
                 setProfiles(data.Users);
-                // Check if the current page has any profiles after update
-                if ((currentPage - 1) * pageSize >= data.Users.length) {
-                    setCurrentPage(Math.max(1, Math.ceil(data.Users.length / pageSize)));
-                }
+                adjustCurrentPage(data.Users.length);
+                setIsLoading(false);
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                setIsLoading(false);
+            });
     }, [currentPage, pageSize]);
+
+    const adjustCurrentPage = (totalProfiles) => {
+        if ((currentPage - 1) * pageSize >= totalProfiles) {
+            setCurrentPage(Math.max(1, Math.ceil(totalProfiles / pageSize)));
+        }
+    };
 
     useEffect(() => {
         window.addEventListener('storage', fetchProfiles);
         fetchProfiles();
-        return () => {
-            window.removeEventListener('storage', fetchProfiles);
-        };
+        return () => window.removeEventListener('storage', fetchProfiles);
     }, [currentPage, fetchProfiles]);
 
     const handleChange = page => {
         setCurrentPage(page);
     };
+
+    if (isLoading) {
+        return <Spin size="large" fullscreen/>; // Display loading indicator
+    }
 
     return profiles.length > 0 ? (
         <div className="explore-container">

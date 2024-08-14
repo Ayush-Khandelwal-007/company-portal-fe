@@ -1,22 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Table, Image, Empty } from 'antd';
+import { Row, Col, Card, Table, Image, Empty, Spin } from 'antd';
 import constants from '../utils/constants';
 import '../styles/compareCandidates.css';
-import { fetchComparisonData } from '../utils/api';
+import { fetchComparisonData } from '../utils/functions';
 
 const CompareCandidates = () => {
     const [comparisonData, setComparisonData] = useState(null);
+    const [isLoading, setIsLoading] = useState(false); // Add loading state
     const comparedUsers = JSON.parse(localStorage.getItem('comparedUsers')) || [];
 
     useEffect(() => {
         if(comparedUsers.length < 2){
             return;
         }
+        setIsLoading(true); // Set loading to true when starting to fetch
         fetchComparisonData(comparedUsers)
             .then(data => {
                 setComparisonData(data.comparison);
+                setIsLoading(false); // Set loading to false after fetching
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                setIsLoading(false); // Set loading to false on error
+            });
     }, []);
 
     const columns = [
@@ -89,6 +95,11 @@ const CompareCandidates = () => {
             <Empty description="You need to select at least 2 profiles to compare. Click on the 'Compare' button on the shortlisted profiles to compare profiles." />
           </div>)
     }
+
+    if (isLoading) {
+        return <Spin size="large" fullscreen/>; // Display loading indicator
+    }
+
     return (
         <div style={{ padding: '20px' }} className="comparison-container">
             <Row justify="center" className="comparison-row">

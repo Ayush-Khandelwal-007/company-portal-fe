@@ -8,7 +8,7 @@ import { Badge } from 'antd';
 
 export default function Sidebar() {
     const location = useLocation();
-    const isActive = (pagePath) =>  location.pathname.includes(pagePath);
+    const isActive = (pagePath) =>  location.pathname===pagePath;
     const [shortlistedUsers, setShortlistedUsers] = useState(JSON.parse(localStorage.getItem('shortlistedUsers')) || []);
 
     useEffect(() => {
@@ -29,7 +29,7 @@ export default function Sidebar() {
                 </Link>
                 <ul>
                     <Link to="/">
-                        <SearchOutlined className={isActive('/') || isActive('/user/') ? 'active' : ''} />
+                        <SearchOutlined className={isActive('/') ? 'active' : ''} />
                         <span>Search</span>
                     </Link>
                     <Badge count={shortlistedUsers.length}>

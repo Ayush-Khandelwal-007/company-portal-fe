@@ -3,7 +3,7 @@ import { Card, Button, Tag, Flex, Badge, message } from 'antd';
 import { ArrowRightOutlined, FlagOutlined, FlagFilled, SmileOutlined, SmileFilled } from '@ant-design/icons';
 import '../styles/profileCard.css';
 import constants from '../utils/constants';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const ProfileCard = ({ profile, handleUpdateShortlist = () => { } }) => {
   const { userId, name, totalExperience, location, summary, skills, profilePic, fullTime, partTime, workAvailability, preferredRole } = profile;
@@ -26,20 +26,23 @@ const ProfileCard = ({ profile, handleUpdateShortlist = () => { } }) => {
   }, [userId]);
 
   const toggleShortlist = () => {
-    const shortlistedUsers = JSON.parse(localStorage.getItem('shortlistedUsers')) || [];
-    let updatedList;
-    if (isShortlisted) {
-      updatedList = shortlistedUsers.filter(id => id !== userId);
-      setIsShortlisted(false);
-      isCompared && toggleCompare();
-      localStorage.setItem('shortlistedUsers', JSON.stringify(updatedList));
-      handleUpdateShortlist(updatedList); 
-    } else {
-      updatedList = [...shortlistedUsers, userId];
-      setIsShortlisted(true);
-      localStorage.setItem('shortlistedUsers', JSON.stringify(updatedList));
+    try {
+        const shortlistedUsers = JSON.parse(localStorage.getItem('shortlistedUsers')) || [];
+        let updatedList;
+        if (isShortlisted) {
+            updatedList = shortlistedUsers.filter(id => id !== userId);
+            setIsShortlisted(false);
+            localStorage.setItem('shortlistedUsers', JSON.stringify(updatedList));
+        } else {
+            updatedList = [...shortlistedUsers, userId];
+            setIsShortlisted(true);
+            localStorage.setItem('shortlistedUsers', JSON.stringify(updatedList));
+        }
+        window.dispatchEvent(new Event("storage"));
+        handleUpdateShortlist(updatedList);
+    } catch (error) {
+        console.error('Failed to update shortlist:', error);
     }
-    window.dispatchEvent(new Event("storage"));
   };
 
   const compareError = () => {
@@ -70,7 +73,7 @@ const ProfileCard = ({ profile, handleUpdateShortlist = () => { } }) => {
   };
 
   const card =
-  <Link to={`/user/${userId}`}>
+  <>
     {contextHolder}
     <Card className="profile-card">
       <div className="profile-card-content">
@@ -91,7 +94,7 @@ const ProfileCard = ({ profile, handleUpdateShortlist = () => { } }) => {
             {isShortlisted ?
               <FlagFilled onClick={toggleShortlist} /> :
               <FlagOutlined onClick={toggleShortlist} />}
-            <Button type='primary' className='profile-card-view-button' icon={<ArrowRightOutlined />} iconPosition='end'>
+            <Button type='primary' className='profile-card-view-button' icon={<ArrowRightOutlined />} iconPosition='end' onClick={()=>navigate(`/user/${userId}`)}>
               View Profile
             </Button>
           </div>
@@ -125,7 +128,7 @@ const ProfileCard = ({ profile, handleUpdateShortlist = () => { } }) => {
         </div>
       </div>
     </Card>
-  </Link>
+  </>
 
   return workAvailability === "immediately" ? (
     <Badge.Ribbon text={"Immediate Joiner"} placement='start' color='rgb(19 10 10 / 68%)'>
