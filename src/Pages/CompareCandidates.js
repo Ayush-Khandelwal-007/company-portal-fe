@@ -83,7 +83,7 @@ const CompareCandidates = () => {
     if(comparedUsers.length < 2){
         return (
             <div className='empty-container'>
-            <Empty description="You need to select at least 2 profiles to compare. Click on the 'Compare' button on the shortlisted profiles to compare profiles." />
+            <Empty description="You need to select exactly 2 profiles to compare. Click on the 'Compare' button on the shortlisted profiles to compare profiles." />
           </div>)
     }
 

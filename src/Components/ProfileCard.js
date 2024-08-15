@@ -37,6 +37,7 @@ const ProfileCard = ({ profile, handleUpdateShortlist = () => { } }) => {
         : [...shortlistedUsers, userId];
 
       localStorage.setItem('shortlistedUsers', JSON.stringify(updatedList));
+      if(isShortlisted && isCompared)toggleCompare();
       window.dispatchEvent(new Event("storage"));
       setIsShortlisted(!isShortlisted);
       handleUpdateShortlist(updatedList);
