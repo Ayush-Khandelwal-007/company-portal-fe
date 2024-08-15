@@ -16,8 +16,9 @@ const getRandomHashIndex = (userId, len) => {
     return hash;
   };
 
-const defaultImages = [profile1, profile2, profile3, profile4, profile5, profile6, profile7, profile8, profile9];
-const randomSummaries = [
+const DEFAULT_IMAGES = [profile1, profile2, profile3, profile4, profile5, profile6, profile7, profile8, profile9];
+
+const RANDOM_SUMMARIES = [
     "A dedicated professional with extensive experience in project management, committed to delivering high-quality results on time. Skilled in team collaboration, problem-solving, and adapting to new challenges, ensuring project goals are met efficiently.",
     "An innovative thinker with a strong background in software development, applying creativity and technical skills to solve complex problems. Experienced in leading projects and delivering solutions that enhance business operations and user experience.",
     "A collaborative team player with a proven track record in customer service and team management. Committed to supporting team members and achieving collective goals through effective communication and strategic planning.",
@@ -28,7 +29,8 @@ const randomSummaries = [
     "A committed lifelong learner with a passion for technology and innovation. Continuously seeking opportunities to acquire new skills in AI and machine learning, aiming to apply these in practical, impactful ways within the tech industry.",
     "A resourceful problem-solver with a positive outlook, tackling challenges head-on and finding innovative solutions. Experienced in IT support and systems troubleshooting, ensuring optimal operational efficiency and user satisfaction.",
 ];
-const tagColors = [
+
+const TAG_COLORS = [
     "magenta",
     "red",
     "volcano",
@@ -41,7 +43,7 @@ const tagColors = [
     "purple"
 ]
 
-var currency_symbols = {
+var CURRENCY_SYMBOLS = {
   'USD': '$', // US Dollar
   'EUR': '€', // Euro
   'CRC': '₡', // Costa Rican Colón
@@ -59,4 +61,26 @@ var currency_symbols = {
   'VND': '₫', // Vietnamese Dong
 };
 
-export default { defaultImages, randomSummaries, tagColors, currency_symbols, getRandomHashIndex };
+const COMPARE_CANDIDATE_ATTRIBUTES_COLUMNS = [
+  {
+      title: 'Attribute',
+      dataIndex: 'attribute',
+      key: 'attribute'
+  },
+  {
+      title: 'User 1',
+      dataIndex: 'user1',
+      key: 'user1'
+  },
+  {
+      title: 'User 2',
+      dataIndex: 'user2',
+      key: 'user2'
+  }
+];
+
+const DEFAULT_PAGE_SIZE = 8;
+
+const CONSTANTS = { DEFAULT_IMAGES, RANDOM_SUMMARIES, TAG_COLORS, CURRENCY_SYMBOLS, COMPARE_CANDIDATE_ATTRIBUTES_COLUMNS, DEFAULT_PAGE_SIZE, getRandomHashIndex };
+
+export default CONSTANTS;

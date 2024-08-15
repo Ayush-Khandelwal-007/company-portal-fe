@@ -4,23 +4,26 @@ import ProfileCard from '../Components/ProfileCard';
 import SearchFilter from '../Components/SearchFilter';
 import '../styles/explore.css';
 import { fetchUsersWithFilters } from '../utils/functions';
+import CONSTANTS from '../utils/constants';
 
 const Explore = () => {
     const [userProfiles, setUserProfiles] = useState([]);
     const [totalUserProfiles, setTotalUserProfiles] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
-    const pageSize = 8;
 
     useEffect(() => {
         const loadProfiles = () => {
             setIsLoading(true);
             const filters = JSON.parse(localStorage.getItem('filtersList') || "[]");
-            fetchUsersWithFilters(currentPage, pageSize, filters)
+            fetchUsersWithFilters(currentPage, CONSTANTS.DEFAULT_PAGE_SIZE, filters)
                 .then(data => {
                     setUserProfiles(data.results);
                     setTotalUserProfiles(data.totalPages);
                     setIsLoading(false);
+                    if(data.totalPages < currentPage){
+                        setCurrentPage(data.totalPages);
+                    }
                 })
                 .catch(error => {
                     console.error('Error fetching profiles:', error);
@@ -32,10 +35,6 @@ const Explore = () => {
         loadProfiles();
         return () => window.removeEventListener('filter-storage', loadProfiles);
     }, [currentPage]);
-
-    const handleChange = page => {
-        setCurrentPage(page);
-    };
 
     if (isLoading) {
         return <Spin size="large" fullscreen/>;
@@ -55,9 +54,9 @@ const Explore = () => {
             </Row>
             <Pagination
                 current={currentPage}
-                onChange={handleChange}
-                total={totalUserProfiles * pageSize}
-                pageSize={pageSize}
+                onChange={setCurrentPage}
+                total={totalUserProfiles * CONSTANTS.DEFAULT_PAGE_SIZE}
+                pageSize={CONSTANTS.DEFAULT_PAGE_SIZE}
                 showSizeChanger={false}
             />
         </div>

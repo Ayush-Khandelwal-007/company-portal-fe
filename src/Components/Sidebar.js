@@ -1,24 +1,22 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowsAltOutlined, SearchOutlined, FlagOutlined, CalendarOutlined } from '@ant-design/icons';
-import logo from '../assets/icon.svg'
-import profile from '../assets/profile.png'
-import '../styles/sidebar.css'
-import { useLocation, Link } from 'react-router-dom'
+import logo from '../assets/icon.svg';
+import profile from '../assets/profile.png';
+import '../styles/sidebar.css';
+import { useLocation, Link } from 'react-router-dom';
 import { Badge } from 'antd';
 
 export default function Sidebar() {
     const location = useLocation();
-    const isActive = (pagePath) =>  location.pathname===pagePath;
-    const [shortlistedUsers, setShortlistedUsers] = useState(JSON.parse(localStorage.getItem('shortlistedUsers')) || []);
+    const isActive = (pagePath) => location.pathname === pagePath;
+    const [shortlistedUsers, setShortlistedUsers] = useState(() => JSON.parse(localStorage.getItem('shortlistedUsers')) || []);
 
     useEffect(() => {
         const handleStorageChange = () => {
             setShortlistedUsers(JSON.parse(localStorage.getItem('shortlistedUsers')) || []);
-        }
-        window.addEventListener('storage',handleStorageChange);
-        return () => {
-            window.removeEventListener('storage', handleStorageChange);
         };
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
 
     return (

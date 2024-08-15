@@ -2,48 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { Card, Button, Tag, Flex, Badge, message } from 'antd';
 import { ArrowRightOutlined, FlagOutlined, FlagFilled, SmileOutlined, SmileFilled } from '@ant-design/icons';
 import '../styles/profileCard.css';
-import constants from '../utils/constants';
+import CONSTANTS from '../utils/constants';
 import { useNavigate, useLocation } from 'react-router-dom';
+import SkillsDisplay from './SkillsDisplay';
 
 const ProfileCard = ({ profile, handleUpdateShortlist = () => { } }) => {
   const { userId, name, totalExperience, location, summary, skills, profilePic, fullTime, partTime, workAvailability, preferredRole } = profile;
   const personalInfoLocation = JSON.parse(location);
-  const hashImageIndex = constants.getRandomHashIndex(userId, constants.defaultImages.length);
-  const hashSummaryIndex = constants.getRandomHashIndex(userId, constants.randomSummaries.length);
-  const selectedImage = constants.defaultImages[hashImageIndex]; // Select image based on hash
-  const selectedSummary = summary || constants.randomSummaries[hashSummaryIndex]; // Select image based on hash
+
   const [isShortlisted, setIsShortlisted] = useState(false);
   const [isCompared, setIsCompared] = useState(false); // New state for compare
   const [messageApi, contextHolder] = message.useMessage();
   const navigate = useNavigate();
   const pageLocation = useLocation();
 
-  useEffect(() => {
-    const shortlistedUsers = JSON.parse(localStorage.getItem('shortlistedUsers')) || [];
-    setIsShortlisted(shortlistedUsers.includes(userId));
-    const comparedUsers = JSON.parse(localStorage.getItem('comparedUsers')) || []; // Assume localStorage for compared users
-    setIsCompared(comparedUsers.includes(userId));
-  }, [userId]);
+  const hashImageIndex = CONSTANTS.getRandomHashIndex(userId, CONSTANTS.DEFAULT_IMAGES.length);
+  const selectedImage = CONSTANTS.DEFAULT_IMAGES[hashImageIndex]; // Select image based on hash
+  const hashSummaryIndex = CONSTANTS.getRandomHashIndex(userId, CONSTANTS.RANDOM_SUMMARIES.length);
+  const selectedSummary = summary || CONSTANTS.RANDOM_SUMMARIES[hashSummaryIndex]; // Select summary based on hash
 
-  const toggleShortlist = () => {
-    try {
-        const shortlistedUsers = JSON.parse(localStorage.getItem('shortlistedUsers')) || [];
-        let updatedList;
-        if (isShortlisted) {
-            updatedList = shortlistedUsers.filter(id => id !== userId);
-            setIsShortlisted(false);
-            localStorage.setItem('shortlistedUsers', JSON.stringify(updatedList));
-        } else {
-            updatedList = [...shortlistedUsers, userId];
-            setIsShortlisted(true);
-            localStorage.setItem('shortlistedUsers', JSON.stringify(updatedList));
-        }
-        window.dispatchEvent(new Event("storage"));
-        handleUpdateShortlist(updatedList);
-    } catch (error) {
-        console.error('Failed to update shortlist:', error);
-    }
-  };
 
   const compareError = () => {
     messageApi.open({
@@ -52,25 +29,48 @@ const ProfileCard = ({ profile, handleUpdateShortlist = () => { } }) => {
     });
   };
 
+  const toggleShortlist = () => {
+    try {
+      const shortlistedUsers = JSON.parse(localStorage.getItem('shortlistedUsers')) || [];
+      const updatedList = isShortlisted
+        ? shortlistedUsers.filter(id => id !== userId)
+        : [...shortlistedUsers, userId];
+
+      localStorage.setItem('shortlistedUsers', JSON.stringify(updatedList));
+      window.dispatchEvent(new Event("storage"));
+      setIsShortlisted(!isShortlisted);
+      handleUpdateShortlist(updatedList);
+    } catch (error) {
+      console.error('Failed to update shortlist:', error);
+    }
+  };
+
   const toggleCompare = () => {
     const comparedUsers = JSON.parse(localStorage.getItem('comparedUsers')) || [];
-    let updatedList;
-    if(comparedUsers.length === 2 && !isCompared){
+    if (comparedUsers.length === 2 && !isCompared) {
       compareError();
       return;
     }
-    if (isCompared) {
-      updatedList = comparedUsers.filter(id => id !== userId);
-    } else {
-      updatedList = [...comparedUsers, userId];
-    }
+
+    const updatedList = isCompared
+      ? comparedUsers.filter(id => id !== userId)
+      : [...comparedUsers, userId];
+
     localStorage.setItem('comparedUsers', JSON.stringify(updatedList));
     window.dispatchEvent(new Event("storage"));
     setIsCompared(!isCompared);
-    if(updatedList.length === 2){
+
+    if (updatedList.length === 2) {
       navigate('/compare');
     }
   };
+
+  useEffect(() => {
+    const shortlistedUsers = JSON.parse(localStorage.getItem('shortlistedUsers')) || [];
+    setIsShortlisted(shortlistedUsers.includes(userId));
+    const comparedUsers = JSON.parse(localStorage.getItem('comparedUsers')) || []; // Assume localStorage for compared users
+    setIsCompared(comparedUsers.includes(userId));
+  }, [userId]);
 
   const card =
   <>
@@ -108,12 +108,7 @@ const ProfileCard = ({ profile, handleUpdateShortlist = () => { } }) => {
       <div className="profile-card-details">
         <div className="profile-card-expertise">
           <span className="profile-card-label">Expert in </span>
-          <Flex className="profile-card-expertise-list">{
-            [...new Set(skills.split(','))].map((skill) => (
-              <span key={skill}><Tag color={constants.tagColors[constants.getRandomHashIndex(skill, constants.tagColors.length)]}>{skill}</Tag></span>
-            ))
-          }
-          </Flex>
+          <SkillsDisplay skills={skills} />
         </div>
         <div className="profile-card-commitment">
           <span className="profile-card-label">Commitment </span>

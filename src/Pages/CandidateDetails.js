@@ -1,60 +1,58 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Card, Image, Button, Flex, Tag, Row, Col, Spin } from 'antd';
-import { ShareAltOutlined, ArrowRightOutlined, FlagOutlined, FlagFilled, MailOutlined, VideoCameraOutlined, SolutionOutlined, BookOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { Card, Image, Button, Row, Col, Spin } from 'antd';
+import { 
+  ShareAltOutlined, ArrowRightOutlined, FlagOutlined, FlagFilled, 
+  MailOutlined, VideoCameraOutlined, SolutionOutlined, BookOutlined, 
+  CheckCircleOutlined 
+} from '@ant-design/icons';
 import '../styles/candidateDetails.css';
-import constants from '../utils/constants';
+import CONSTANTS from '../utils/constants';
 import OrgImage from '../assets/org.png';
 import SchoolImage from '../assets/school.png';
 import ResumeSection from '../Components/ResumeSection';
+import SkillsDisplay from '../Components/SkillsDisplay';
 import { fetchCandidateDetails } from '../utils/functions';
 
 const CandidateDetails = () => {
     const { id } = useParams();
     const [candidate, setCandidate] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);  // Add loading state
-    const personalInfoLocation = candidate?.personalInfoLocation
-    const hashImageIndex = constants.getRandomHashIndex(id, constants.defaultImages.length);
-    const hashSummaryIndex = constants.getRandomHashIndex(id, constants.randomSummaries.length);
-    const selectedImage = constants.defaultImages[hashImageIndex]; // Select image based on hash
-    const selectedSummary = candidate?.summary || constants.randomSummaries[hashSummaryIndex]; // Select image based on hash
+    const [isLoading, setIsLoading] = useState(false);
     const [isShortlisted, setIsShortlisted] = useState(false);
+    
+    const personalInfoLocation = candidate?.personalInfoLocation;
+    const selectedImage = CONSTANTS.DEFAULT_IMAGES[CONSTANTS.getRandomHashIndex(id, CONSTANTS.DEFAULT_IMAGES.length)];
+    const selectedSummary = candidate?.summary || CONSTANTS.RANDOM_SUMMARIES[CONSTANTS.getRandomHashIndex(id, CONSTANTS.RANDOM_SUMMARIES.length)];
+
+    const toggleShortlist = () => {
+        const shortlistedUsers = JSON.parse(localStorage.getItem('shortlistedUsers')) || [];
+        const updatedList = isShortlisted ? shortlistedUsers.filter(uid => uid !== id) : [...shortlistedUsers, id];
+        setIsShortlisted(!isShortlisted);
+        localStorage.setItem('shortlistedUsers', JSON.stringify(updatedList));
+        window.dispatchEvent(new Event("storage"));
+    };
 
     useEffect(() => {
         const shortlistedUsers = JSON.parse(localStorage.getItem('shortlistedUsers')) || [];
         setIsShortlisted(shortlistedUsers.includes(id));
-      }, [id]);
 
-    const toggleShortlist = () => {
-        const shortlistedUsers = JSON.parse(localStorage.getItem('shortlistedUsers')) || [];
-        let updatedList;
-        if (isShortlisted) {
-          updatedList = shortlistedUsers.filter(uid => uid !== id);
-          setIsShortlisted(false);
-          localStorage.setItem('shortlistedUsers', JSON.stringify(updatedList));
-        } else {
-          updatedList = [...shortlistedUsers, id];
-          setIsShortlisted(true);
-          localStorage.setItem('shortlistedUsers', JSON.stringify(updatedList));
-        }
-        window.dispatchEvent(new Event("storage"));
-      };
-
-    useEffect(() => {
-        setIsLoading(true);  // Set loading to true when starting to fetch
-        fetchCandidateDetails(id)
-            .then(data => {
+        const loadCandidateDetails = async () => {
+            setIsLoading(true);
+            try {
+                const data = await fetchCandidateDetails(id);
                 setCandidate(data);
-                setIsLoading(false);  // Set loading to false after fetching
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Failed to fetch candidate details:', error);
-                setIsLoading(false);  // Set loading to false on error
-            });
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadCandidateDetails();
     }, [id]);
 
     if (isLoading) {
-        return <Spin size="large" fullscreen/>;  // Display loading indicator
+        return <Spin size="large" fullscreen/>;  
     }
 
     if (!candidate) {
@@ -83,12 +81,7 @@ const CandidateDetails = () => {
                     <div className="candidate-expertise-container">
                         <div className="candidate-expertise-header">
                             <span className="profile-card-label">Expert in </span>
-                            <Flex className="profile-card-expertise-list">{
-                                [...new Set(candidate.skills.split(','))].map((skill) => (
-                                    <span key={skill}><Tag color={constants.tagColors[constants.getRandomHashIndex(skill, constants.tagColors.length)]}>{skill}</Tag></span>
-                                ))
-                            }
-                            </Flex>
+                            <SkillsDisplay skills={candidate.skills} />
                         </div>
                         <Button className="hire-button" icon={<ArrowRightOutlined />} iconPosition='end'>Hire Instantly</Button>
                     </div>
@@ -103,14 +96,14 @@ const CandidateDetails = () => {
                         <Card className="availability-card">
                             <CheckCircleOutlined className='availability-check'/>
                             <Card.Meta className="availability-meta" title="Full Time" description="Can start 40+ hours / week immediately" />
-                            <span>{`${constants.currency_symbols[candidate.fullTimeSalaryCurrency]} ${candidate.fullTimeSalary.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} / month`}</span>
+                            <span>{`${CONSTANTS.CURRENCY_SYMBOLS[candidate.fullTimeSalaryCurrency]} ${candidate.fullTimeSalary.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} / month`}</span>
                             </Card>
                     </Col> : null}
                     {candidate.partTime ? <Col span={12} className="part-time-col">
                         <Card className="availability-card">
                             <CheckCircleOutlined className='availability-check'/>
                             <Card.Meta className="availability-meta" title="Part Time" description="Can start 20+ hours / week immediately" />
-                            <span>{`${constants.currency_symbols[candidate.partTimeSalaryCurrency]} ${candidate.partTimeSalary.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} / month`}</span>
+                            <span>{`${CONSTANTS.CURRENCY_SYMBOLS[candidate.partTimeSalaryCurrency]} ${candidate.partTimeSalary.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} / month`}</span>
                         </Card>
                     </Col> : null}
                 </Row>
