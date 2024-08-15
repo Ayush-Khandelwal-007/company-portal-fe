@@ -17,7 +17,6 @@ function App() {
             <Route path="/user/:id" element={<CandidateDetails/>}/>
             <Route path="/shortlisted" element={<ShortListed/>}/>
             <Route path="/compare" element={<CompareCandidates/>}/>
-            <Route path="/compare" element={<CandidateDetails/>}/>
           </Routes>
     </div>
   </div>

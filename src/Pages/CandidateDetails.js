@@ -20,7 +20,7 @@ const CandidateDetails = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isShortlisted, setIsShortlisted] = useState(false);
     
-    const personalInfoLocation = candidate?.personalInfoLocation;
+    const personalInfoLocation = JSON.parse(candidate?.personalInfoLocation || "{}");
     const selectedImage = CONSTANTS.DEFAULT_IMAGES[CONSTANTS.getRandomHashIndex(id, CONSTANTS.DEFAULT_IMAGES.length)];
     const selectedSummary = candidate?.summary || CONSTANTS.RANDOM_SUMMARIES[CONSTANTS.getRandomHashIndex(id, CONSTANTS.RANDOM_SUMMARIES.length)];
 
@@ -66,7 +66,7 @@ const CandidateDetails = () => {
                     <Image className="candidate-image" src={candidate.profilePic || selectedImage} />
                     <div className="candidate-card-title">
                         <span className="candidate-role">{candidate.preferredRole}</span>
-                        <span className='candidate-personal-info'>{`${candidate.name}  |  Exp: ${candidate.totalExperience} years  |  ${personalInfoLocation?.city}, ${personalInfoLocation?.country}`}</span>
+                        <span className='candidate-personal-info'>{`${candidate.name}  |  Exp: ${candidate?.workExperiences?.reduce((total, currentValue)=>total+(parseInt(currentValue.endDate)-parseInt(currentValue.startDate)),0) || 0} years  |  ${personalInfoLocation?.city}, ${personalInfoLocation?.country}`}</span>
                     </div>
                 </div>
                 <div className="candidate-actions-container">
